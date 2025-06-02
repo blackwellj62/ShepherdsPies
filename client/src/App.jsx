@@ -23,6 +23,7 @@ function App() {
 
   return (
     <>
+      <NavBar loggedInUser={loggedInUser} setLoggedInUser={setLoggedInUser} />  
       <ApplicationViews
         loggedInUser={loggedInUser}
         setLoggedInUser={setLoggedInUser}

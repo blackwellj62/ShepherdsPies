@@ -10,7 +10,7 @@ Navbar,
 NavbarBrand,
 NavbarToggler,
 } from "reactstrap";
-import { logout } from "../managers/authmanager.js";
+import { logout } from "../managers/authManager.js";
 
 export default function NavBar({ loggedInUser, setLoggedInUser }) {
 const [open, setOpen] = useState(false);
@@ -19,15 +19,20 @@ const toggleNavbar = () => setOpen(!open);
 
 return (
     <div>
-    <Navbar color="light" light fixed="true" expand="lg">
+    <Navbar  light fixed="true" expand="lg">
         <NavbarBrand className="mr-auto" tag={RRNavLink} to="/">
-        Shepherd's Pies
+        🍕Shepherd's Pies
         </NavbarBrand>
         {loggedInUser ? (
         <>
             <NavbarToggler onClick={toggleNavbar} />
             <Collapse isOpen={open} navbar>
-            <Nav navbar></Nav>
+            <Nav navbar>
+                <NavItem onClick={() => setOpen(false)}/>
+                  <NavLink tag={RRNavLink} to="/create-order">
+                    Create Order
+                  </NavLink>
+            </Nav>
             </Collapse>
             <Button
             color="primary"
