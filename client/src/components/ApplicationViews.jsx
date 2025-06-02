@@ -1,8 +1,9 @@
-import { Outlet, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import { AuthorizedRoute } from "./auth/AuthorizedRoute";
 import Login from "./auth/Login";
 import Register from "./auth/Register";
-import NavBar from "./NavBar.jsx";
+import { CreateOrder } from "./Pizza/CreateOrder.jsx";
+import { Home } from "./Pizza/Home.jsx";
 
 
 export default function ApplicationViews({ loggedInUser, setLoggedInUser }) {
@@ -13,21 +14,18 @@ export default function ApplicationViews({ loggedInUser, setLoggedInUser }) {
           index
           element={
             <AuthorizedRoute loggedInUser={loggedInUser}>
-              <>
-              <NavBar loggedInUser={loggedInUser} setLoggedInUser={setLoggedInUser} />
-              <Outlet/>
-              </>
+              <Home/>
             </AuthorizedRoute>
           }
         />
-        {/* <Route
-          path="bikes"
+        <Route
+          path="create-order"
           element={
             <AuthorizedRoute loggedInUser={loggedInUser}>
-              <Bikes />
+              <CreateOrder/>
             </AuthorizedRoute>
           }
-        /> */}
+        />
         {/* <Route path="workorders">
     <Route
     index
