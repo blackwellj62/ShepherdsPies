@@ -1,9 +1,9 @@
 export const getAllOrders = () => {
-    return fetch("/api/orders").then((res) => res.json());
+    return fetch("/api/Order").then((res) => res.json());
 };
 
 export const getOrderById = (id) => {
-    return fetch(`/api/orders/${id}`).then((res)=>res.json());
+    return fetch(`/api/Order/${id}`).then((res)=>res.json());
 };
 
 export const cancelOrder = (orderId) => {
