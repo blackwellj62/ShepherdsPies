@@ -53,4 +53,34 @@ public class PizzaController : ControllerBase
 
     }
 
+    [HttpPost]
+    //[Authorize]
+    public IActionResult CreatePizza(Pizza pizza)
+    {
+        _dbContext.Pizzas.Add(pizza);
+        _dbContext.SaveChanges();
+        return Created($"/api/pizza/{pizza.Id}", pizza);
+    }
+
+    [HttpPut("{id}")]
+    //[Authorize]
+    public IActionResult UpdatePiza(Pizza pizza, int id)
+    {
+        Pizza pizzaToUpdate = _dbContext.Pizzas.SingleOrDefault(p => p.Id == id);
+        if(pizzaToUpdate == null){
+            return NotFound();
+        }else if(id !=  pizza.Id){
+            return BadRequest();
+        }
+
+        pizzaToUpdate.CheeseId = pizza.CheeseId;
+        pizzaToUpdate.SauceId = pizza.SauceId;
+        pizzaToUpdate.SizeId = pizza.SizeId;
+        pizzaToUpdate.OrderId = pizza.OrderId;
+
+        _dbContext.SaveChanges();
+
+        return NoContent();
+    }
+
 }
