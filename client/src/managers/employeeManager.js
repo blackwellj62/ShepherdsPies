@@ -1,4 +1,4 @@
 export const getAllEmployees = () => {
-    return fetch("/api/employees").then((res)=>res.json());
+    return fetch("/api/Employee").then((res)=>res.json());
 };
 
