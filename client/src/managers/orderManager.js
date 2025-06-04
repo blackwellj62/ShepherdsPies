@@ -7,13 +7,13 @@ export const getOrderById = (id) => {
 };
 
 export const cancelOrder = (orderId) => {
-    return fetch(`/api/orders/${orderId}`,{
+    return fetch(`/api/Order/${orderId}`,{
         method: "DELETE"
     });
 };
 
-export const createOrder = (order) => {
-    return fetch("/api/orders",{
+export const createNewOrder = (order) => {
+    return fetch("/api/Order",{
         method: "POST",
         headers: {
             "Content-Type": "application/json"

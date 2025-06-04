@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useEffect } from "react"
 import { getPizzaCheeses, getPizzaSauces, getPizzaSizes, getToppings } from "../../managers/pizzaManager.js"
 import { getAllEmployees } from "../../managers/employeeManager.js"
+import { createNewOrder } from "../../managers/orderManager.js"
 
 
 export const CreateOrder = () => {
@@ -10,16 +11,23 @@ export const CreateOrder = () => {
     const [allCheese, setAllCheese] = useState([])
     const [allToppings, setAllToppings] = useState([])
     const [allEmployees, setAllEmployees] = useState([])
-    const [chosenSize, setChosenSize] = useState([])
-    const [chosenSauce, setChosenSauce] = useState("")
-    const [chosenCheese, setChosenCheese] = useState("")
-    const [chosenToppings, setChosenToppings] = useState([])
+    // const [chosenSize, setChosenSize] = useState([])
+    // const [chosenSauce, setChosenSauce] = useState("")
+    // const [chosenCheese, setChosenCheese] = useState("")
+    // const [chosenToppings, setChosenToppings] = useState([])
     const [orderTaker, setOrderTaker] = useState("")
     const [deliveryIsChecked, setDeliveryIsChecked] = useState(false)
     const [deliverer, setDeliverer] = useState("")
     const [dineInIsChecked, setDineInIsChecked] = useState(false)
     const [tableNumber, setTableNumber] = useState("")
-    const [pizzas, setPizzas] = useState([{ id: Date.now() }])
+    const [tip, setTip] = useState("")
+    const [pizzas, setPizzas] = useState([{
+    id: Date.now(),
+    sizeId: null,
+    sauceId: null,
+    cheeseId: null,
+    toppingIds: []
+  }])
 
     useEffect(()=>{
       getPizzaSizes().then(sizeArray =>{
@@ -60,12 +68,48 @@ export const CreateOrder = () => {
     }
 
     const handleAddPizza = () => {
-    setPizzas((prev) => [...prev, { id: Date.now() }]);
+    setPizzas((prev) => [...prev, {
+    id: Date.now(),
+    sizeId: null,
+    sauceId: null,
+    cheeseId: null,
+    toppingIds: []
+  }]);
   }
 
   const handleRemovePizza = (id) => {
     setPizzas((prev) => prev.filter((pizza) => pizza.id !== id));
   }
+
+  const calculatePizzaPrice = (pizza) => {
+  const sizePrice = allSizes.find((s) => s.id === pizza.sizeId)?.price || 0;
+  const toppingPrices = pizza.toppingIds.map(
+    (id) => allToppings.find((t) => t.id === id)?.price || 0
+  );
+  const toppingTotal = toppingPrices.reduce((sum, price) => sum + price, 0);
+  return sizePrice + toppingTotal;
+};
+const parsedTip = parseFloat(tip) || 0;
+
+const totalBasePrice = pizzas.reduce(
+  (sum, pizza) => sum + calculatePizzaPrice(pizza),
+  0
+);
+
+const deliveryFee = deliveryIsChecked ? 5 : 0;
+const totalOrderPrice = totalBasePrice + deliveryFee + parsedTip;
+
+const handleSaveButton = ()=> {
+  const newOrder = {
+    tableNumber : tableNumber ? tableNumber : "",
+    isDelivery : deliveryIsChecked ? deliveryIsChecked : "",
+    orderDateTime : Date.now(),
+    tip : parsedTip,
+    orderTakerEpId : orderTaker,
+    deliverEpId : deliverer ? deliverer : "",
+  }
+  createNewOrder(newOrder)
+}
 
     return(
         <div>
@@ -84,7 +128,14 @@ export const CreateOrder = () => {
 
           <div>
             <h6>Size</h6>
-            <select className="form-select" onChange={(event)=>{setChosenSize(event.target.value)}}>
+            <select className="form-select" onChange={(event) => {
+                const selectedSizeId = parseInt(event.target.value);
+                setPizzas((prevPizzas) =>
+                  prevPizzas.map((p) =>
+                    p.id === pizza.id ? { ...p, sizeId: selectedSizeId } : p
+                  )
+                );
+              }}>
               <option value="0">Choose a Size</option>
               {allSizes.map(size=>
                 <option value={size.id} key={size.id}>{size.name}</option>
@@ -94,7 +145,14 @@ export const CreateOrder = () => {
 
           <div>
             <h6>Sauce</h6>
-            <select className="form-select" onChange={(event)=>{setChosenSauce(event.target.value)}}>
+            <select className="form-select" onChange={(event) => {
+              const selectedSauceId = parseInt(event.target.value);
+              setPizzas((prevPizzas) =>
+                prevPizzas.map((p) =>
+                  p.id === pizza.id ? { ...p, sauceId: selectedSauceId } : p
+                )
+              );
+            }}>
               <option value="0">Choose a Sauce</option>
               {allSauce.map(sauce=>
                 <option value={sauce.id} key={sauce.id}>{sauce.name}</option>
@@ -104,7 +162,14 @@ export const CreateOrder = () => {
 
           <div>
             <h6>Cheese</h6>
-            <select className="form-select" onChange={(event)=>{setChosenCheese(event.target.value)}}>
+            <select className="form-select" onChange={(event) => {
+              const selectedCheeseId = parseInt(event.target.value);
+              setPizzas((prevPizzas) =>
+                prevPizzas.map((p) =>
+                  p.id === pizza.id ? { ...p, cheeseId: selectedCheeseId } : p
+                )
+              );
+            }}>
               <option value="0">Choose a Cheese</option>
               {allCheese.map(cheese=>
                 <option value={cheese.id} key={cheese.id}>{cheese.name}</option>
@@ -116,15 +181,17 @@ export const CreateOrder = () => {
             {allToppings.map((topping) => (
               <div  key={topping.id} className="form-check">
                   <input value={topping.id} className="form-check-input" type="checkbox" onChange={(event) => {
-                        const selectedId = event.target.value
-                        if (event.target.checked) {
-                          // Add topping if checked
-                          setChosenToppings((prev) => [...prev, selectedId])
-                        } else {
-                          // Remove topping if unchecked
-                          setChosenToppings((prev) => prev.filter(id => id !== selectedId))
-                        }
-                      }} />
+                      const toppingId = topping.id;
+                      setPizzas((prevPizzas) =>
+                        prevPizzas.map((p) => {
+                          if (p.id !== pizza.id) return p;
+                          const newToppings = event.target.checked
+                            ? [...p.toppingIds, toppingId]
+                            : p.toppingIds.filter((id) => id !== toppingId);
+                          return { ...p, toppingIds: newToppings };
+                        })
+                      );
+                    }} />
                 <label className="form-check-label">
                   {topping.name}
                 </label>
@@ -197,6 +264,12 @@ export const CreateOrder = () => {
           </select>
         </div>
       )}
+      <div>
+        <h6>Tip</h6>
+        <div>
+        <input className="form-control" type="text" onChange={(event)=>{setTip(event.target.value)}}/>
+      </div>
+      </div>
 
       <div className="mt-3">
         <h6>Order Taken By</h6>
@@ -207,7 +280,8 @@ export const CreateOrder = () => {
               )}
         </select>
       </div>
-      <button type="button" className="btn btn-success mt-3">
+      <h4>Total: ${totalOrderPrice.toFixed(2)}</h4>
+      <button type="button" className="btn btn-success mt-3" onClick={()=>{handleSaveButton()}}>
         Place Order
       </button>
       <button type="button" className="btn btn-danger mt-3 ms-2">

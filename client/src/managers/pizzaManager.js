@@ -16,3 +16,12 @@ export const getToppings = () => {
     return fetch("/api/Topping").then((res)=> res.json());
 };
 
+export const createPizza = (pizza) => {
+    return fetch("/api/Pizza",{
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(pizza)
+    });
+};
