@@ -316,9 +316,7 @@ const handleSaveButton = async () => {
       <button type="button" className="btn btn-success mt-3" onClick={()=>{handleSaveButton()}}>
         Place Order
       </button>
-      <button type="button" className="btn btn-danger mt-3 ms-2">
-        Cancel Order
-      </button>
+      
     </div>
     )
 }
