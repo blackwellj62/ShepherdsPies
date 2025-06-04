@@ -6,8 +6,13 @@ export const Home = () => {
 
     const loadOrders = async () => {
     const orderArray = await getAllOrders();
+
+    // Sort by orderDateTime descending (newest first)
+    orderArray.sort((a, b) => new Date(b.orderDateTime) - new Date(a.orderDateTime));
+
     setOrders(orderArray);
-}
+};
+
 
 useEffect(() => {
     loadOrders();
