@@ -1,11 +1,13 @@
 import { useState } from "react"
 import { useEffect } from "react"
-import { getPizzaCheeses, getPizzaSauces, getPizzaSizes, getToppings } from "../../managers/pizzaManager.js"
+import { createNewPizza, getPizzaCheeses, getPizzaSauces, getPizzaSizes, getToppings } from "../../managers/pizzaManager.js"
 import { getAllEmployees } from "../../managers/employeeManager.js"
 import { createNewOrder } from "../../managers/orderManager.js"
+import { useNavigate } from "react-router-dom"
 
 
 export const CreateOrder = () => {
+  const navigate = useNavigate()
     const [allSizes, setAllSizes] = useState([])
     const [allSauce, setAllSauce] = useState([])
     const [allCheese, setAllCheese] = useState([])
@@ -28,6 +30,7 @@ export const CreateOrder = () => {
     cheeseId: null,
     toppingIds: []
   }])
+  
 
     useEffect(()=>{
       getPizzaSizes().then(sizeArray =>{
@@ -99,16 +102,45 @@ const totalBasePrice = pizzas.reduce(
 const deliveryFee = deliveryIsChecked ? 5 : 0;
 const totalOrderPrice = totalBasePrice + deliveryFee + parsedTip;
 
-const handleSaveButton = ()=> {
+const handleSaveButton = async () => {
   const newOrder = {
-    tableNumber : tableNumber ? tableNumber : "",
-    isDelivery : deliveryIsChecked ? deliveryIsChecked : "",
-    orderDateTime : Date.now(),
-    tip : parsedTip,
-    orderTakerEpId : orderTaker,
-    deliverEpId : deliverer ? deliverer : "",
+    tableNumber: tableNumber || null,
+    isDelivery: deliveryIsChecked || false,
+    tip: parsedTip,
+    orderTakeEpId: orderTaker,
+    deliverEpId: deliverer || null,
   }
-  createNewOrder(newOrder)
+
+  try {
+    // Step 1: Create the order
+    const createdOrder = await createNewOrder(newOrder)
+    const orderId = createdOrder.id
+
+    if (!orderId) {
+      throw new Error("Order ID not returned from server")
+    }
+
+    // Step 2: For each pizza, create it along with its toppings
+    const pizzaPromises = pizzas.map((pizza) => {
+      const newPizza = {
+        sizeId: pizza.sizeId,
+        cheeseId: pizza.cheeseId,
+        sauceId: pizza.sauceId,
+        orderId: orderId,
+        toppingIds: pizza.toppingIds // your updated createNewPizza now uses this!
+      }
+
+      return createNewPizza(newPizza)
+    })
+
+    await Promise.all(pizzaPromises)
+
+    alert("Order placed successfully!")
+  } catch (error) {
+    console.error("Error saving order, pizzas, or toppings:", error)
+    alert("Something went wrong. Please try again.")
+  }
+  navigate("/")
 }
 
     return(

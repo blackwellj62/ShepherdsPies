@@ -1,14 +1,23 @@
 import { useEffect, useState } from "react"
-import { getAllOrders } from "../../managers/orderManager.js"
+import { cancelOrder, getAllOrders } from "../../managers/orderManager.js"
 
 export const Home = () => {
     const [orders, setOrders] = useState([])
 
-    useEffect(()=>{
-        getAllOrders().then(orderArray=>{
-            setOrders(orderArray)
-        })
-    },[])
+    const loadOrders = async () => {
+    const orderArray = await getAllOrders();
+    setOrders(orderArray);
+}
+
+useEffect(() => {
+    loadOrders();
+}, []);
+
+const handleDelete = async (orderId) => {
+    await cancelOrder(orderId);
+    loadOrders();
+}
+   
 
     return(
         <div>
@@ -22,6 +31,9 @@ export const Home = () => {
                         <a href={order.id} className="card-link">Order Details</a>
                         <a href={order.id} className="card-link">Update Order</a>
                     </div>
+                        <button type="button" className="btn btn-danger mt-3 ms-2" onClick={()=>{handleDelete(order.id)}} >
+                            Cancel Order
+                        </button>
                 </div>
             )}
         </div>

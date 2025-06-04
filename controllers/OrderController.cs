@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -88,5 +89,19 @@ public class OrderController : ControllerBase
         return NoContent();
 
     }
+[HttpDelete("{id}")]
+ //[Authorize]
 
+    public IActionResult DeleteOrder(int id)
+    {
+        var order = _dbContext.Orders.SingleOrDefault(o => o.Id == id);
+        if (order == null)
+        {
+            return NotFound();
+        }
+        _dbContext.Remove(order);
+        _dbContext.SaveChanges();
+
+        return NoContent();
+    }
 }

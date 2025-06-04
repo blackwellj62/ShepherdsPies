@@ -16,12 +16,36 @@ export const getToppings = () => {
     return fetch("/api/Topping").then((res)=> res.json());
 };
 
-export const createPizza = (pizza) => {
-    return fetch("/api/Pizza",{
+export const createNewPizza = async (pizza) => {
+    // First, create the pizza
+    const pizzaResponse = await fetch("/api/Pizza", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify(pizza)
+        body: JSON.stringify({
+            sizeId: pizza.sizeId,
+            sauceId: pizza.sauceId,
+            cheeseId: pizza.cheeseId,
+            orderId: pizza.orderId // make sure orderId is passed in!
+        })
     });
+
+    const newPizza = await pizzaResponse.json();
+
+    // Then, create PizzaTopping entries
+    for (const toppingId of pizza.toppingIds || []) {
+        await fetch("/api/PizzaTopping", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                pizzaId: newPizza.id,
+                toppingId: toppingId
+            })
+        });
+    }
+
+    return newPizza;
 };

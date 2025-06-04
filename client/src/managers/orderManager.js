@@ -19,5 +19,5 @@ export const createNewOrder = (order) => {
             "Content-Type": "application/json"
         },
         body: JSON.stringify(order)
-    });
+    }).then((res)=>res.json())
 };
