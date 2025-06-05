@@ -17,6 +17,21 @@ public class PizzaToppingController : ControllerBase
         _dbContext = context;
     }
 
+    [HttpDelete("pizza/{id}")]
+    //[Authorize]
+    public IActionResult DeletePizzaTopping(int id)
+    {
+        var pizzaTopping = _dbContext.PizzaToppings.Where(pt => pt.PizzaId == id).ToList();
+        if (!pizzaTopping.Any())
+        {
+            return NotFound();
+        }
+
+        _dbContext.PizzaToppings.RemoveRange(pizzaTopping);
+        _dbContext.SaveChanges();
+        return NoContent();
+    }
+
     [HttpPost]
     //[Authorize]
     public IActionResult PostPizzaTopping(PizzaTopping pizzaTopping)
