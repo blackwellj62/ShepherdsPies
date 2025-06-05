@@ -28,8 +28,8 @@ const handleDelete = async (orderId) => {
                         <h5 className="card-title">Order #{order.id}</h5>
                         <h6 className="card-subtitle mb-2 text-body-secondary">Order Date: {order.orderDateTime}</h6>
                         <p className="card-text"># of Pizzas: {order.pizzas.length}</p>
-                        <a href={order.id} className="card-link">Order Details</a>
-                        <a href={order.id} className="card-link">Update Order</a>
+                        <a href={`order-details/${order.id}`} className="card-link">Order Details</a>
+                        <a href={`edit-order/${order.id}`} className="card-link">Update Order</a>
                     </div>
                         <button type="button" className="btn btn-danger mt-3 ms-2" onClick={()=>{handleDelete(order.id)}} >
                             Cancel Order

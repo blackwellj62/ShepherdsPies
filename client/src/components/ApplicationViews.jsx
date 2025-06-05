@@ -4,6 +4,7 @@ import Login from "./auth/Login";
 import Register from "./auth/Register";
 import { CreateOrder } from "./Pizza/CreateOrder.jsx";
 import { Home } from "./Pizza/Home.jsx";
+import { UpdateOrder } from "./Pizza/UpdateOrder.jsx";
 
 
 export default function ApplicationViews({ loggedInUser, setLoggedInUser }) {
@@ -23,6 +24,14 @@ export default function ApplicationViews({ loggedInUser, setLoggedInUser }) {
           element={
             <AuthorizedRoute loggedInUser={loggedInUser}>
               <CreateOrder/>
+            </AuthorizedRoute>
+          }
+        />
+        <Route
+          path="edit-order/:id"
+          element={
+            <AuthorizedRoute loggedInUser={loggedInUser}>
+              <UpdateOrder />
             </AuthorizedRoute>
           }
         />
