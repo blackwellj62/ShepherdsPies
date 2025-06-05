@@ -156,49 +156,49 @@ public class ShepherdsPiesDbContext : IdentityDbContext<IdentityUser>
             new Topping
             {
                 Id = 1,
-                Name = "sausage",
+                Name = "Sausage",
                 Price = .50M
             },
             new Topping
             {
                 Id = 2,
-                Name = "pepperoni",
+                Name = "Pepperoni",
                 Price = .50M
             },
             new Topping
             {
                 Id = 3,
-                Name = "mushroom",
+                Name = "Mushroom",
                 Price = .50M
             },
             new Topping
             {
                 Id = 4,
-                Name = "onion",
+                Name = "Onion",
                 Price = .50M
             },
             new Topping
             {
                 Id = 5,
-                Name = "green pepper",
+                Name = "Green pepper",
                 Price = .50M
             },
             new Topping
             {
                 Id = 6,
-                Name = "black olive",
+                Name = "Black olive",
                 Price = .50M
             },
             new Topping
             {
                 Id = 7,
-                Name = "basil",
+                Name = "Basil",
                 Price = .50M
             },
             new Topping
             {
                 Id = 8,
-                Name = "extra cheese",
+                Name = "Extra cheese",
                 Price = .50M
             }
         });
