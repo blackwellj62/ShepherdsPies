@@ -30,5 +30,5 @@ export const updateOrder = (order, id) => {
             "Content-Type": "application/json"
         },
         body: JSON.stringify(order)
-    }).then((res) => res.json())
+    })
 }

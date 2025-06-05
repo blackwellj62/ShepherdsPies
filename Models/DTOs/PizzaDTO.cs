@@ -11,4 +11,5 @@ public class PizzaDTO
     public SauceDTO? Sauce { get; set; }
     public int OrderId { get; set; }
     public List<PizzaToppingDTO>? PizzaToppings { get; set; }
+    public List<int>? ToppingIds { get; set; }
 }

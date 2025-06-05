@@ -49,3 +49,31 @@ export const createNewPizza = async (pizza) => {
 
     return newPizza;
 };
+
+export const updatePizza = async (pizza) => {
+    await fetch(`/api/Pizza/${pizza.id}`, {
+        method: "PUT",
+        headers: {
+            "content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            id: pizza.id,
+            sizeId: pizza.sizeId,
+            sauceId: pizza.sauceId,
+            cheeseId: pizza.cheeseId,
+            orderId: pizza.orderId
+        })
+    })
+};
+
+export const deletePizzaToppingsByPizzaId = async (pizzaId) => {
+    await fetch(`/api/PizzaTopping/pizza/${pizzaId}`, {
+        method: "DELETE"
+    });
+};
+
+export const deletePizza = async (pizzaId) => {
+    await fetch(`/api/Pizza/${pizzaId}`, {
+        method: "DELETE"
+    })
+}

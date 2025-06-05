@@ -1,9 +1,10 @@
 import { useState } from "react"
 import { useEffect } from "react"
-import { getPizzaCheeses, getPizzaSauces, getPizzaSizes, getToppings } from "../../managers/pizzaManager.js"
+import { deletePizzaToppingsByPizzaId, getPizzaCheeses, getPizzaSauces, getPizzaSizes, getToppings, updatePizza, deletePizza, createNewPizza } from "../../managers/pizzaManager.js"
 import { getAllEmployees } from "../../managers/employeeManager.js"
 import { getOrderById } from "../../managers/orderManager.js"
 import { useNavigate, useParams } from "react-router-dom"
+import { updateOrder } from "../../managers/orderManager.js"
 
 export const UpdateOrder = () => {
     const { id } = useParams()
@@ -21,6 +22,7 @@ export const UpdateOrder = () => {
     const [tableNumber, setTableNumber] = useState("")
     const [tip, setTip] = useState("")
     const [pizzas, setPizzas] = useState([])
+    const [deletedPizzaIds, setDeletedPizzaIds] = useState([])
 
     useEffect(() => {
         getPizzaSizes().then(setAllSizes)
@@ -53,15 +55,21 @@ export const UpdateOrder = () => {
     const handleDineInCheck = (event) => setDineInIsChecked(event.target.checked)
 
     const handleAddPizza = () => {
-        setPizzas(prev => [...[prev], {
+        setPizzas(prev => [...prev, {
             id: Date.now(),
             sizeId: null,
             sauceId: null,
             cheeseId: null,
-            toppingId: []
+            toppingIds: []
         }])
     }
-    const handleRemovePizza = (pizzaId) => setPizzas((prev) => prev.filter((pizza) => pizza.id !== pizzaId))
+    const handleRemovePizza = (pizzaId) => {
+        if(pizzaId < 100000) {
+            setDeletedPizzaIds(prev => [...prev, pizzaId])
+        }
+        setPizzas(prev =>  prev.filter(p => p.id !== pizzaId))
+    }
+
     const calculatePizzaPrice = (pizza) => {
         const sizePrice = allSizes.find(s => s.id === pizza.sizeId)?.price || 0
         const toppingTotal = pizza.toppingIds.reduce((sum, tId) => {
@@ -77,7 +85,12 @@ export const UpdateOrder = () => {
     const totalOrderPrice = totalBasePrice + deliveryFee + parsedTip
 
     const handleUpdateButton = async () => {
-        const updateOrder = {
+        for(const pizzaId of deletedPizzaIds){
+            await deletePizza(pizzaId)
+        }
+        setDeletedPizzaIds([])
+
+        const updatedOrder = {
             id: parseInt(id),
             tableNumber: tableNumber || null,
             isDelivery: deliveryIsChecked,
@@ -88,6 +101,46 @@ export const UpdateOrder = () => {
         
         try {
             await updateOrder(updatedOrder, parseInt(id))
+            //update pizzas and toppings
+            for(const pizza of pizzas){
+                //if new pizza, create
+                //since ids are tracked by date.now, they will be large
+                //we find new orders by them being smaller than the date.now range
+                if(pizza.id > 100000){
+
+                await createNewPizza({
+                    sizeId: pizza.sizeId,
+                    sauceId: pizza.sauceId,
+                    cheeseId: pizza.cheeseId,
+                    orderId: parseInt(id),
+                    toppingIds: pizza.toppingIds
+                })
+                }else{
+                await updatePizza({
+                    id: pizza.id,
+                    sizeId: pizza.sizeId,
+                    sauceId: pizza.sauceId,
+                    cheeseId: pizza.cheeseId,
+                    orderId: parseInt(id)
+                })
+
+            //delete old toppings
+            await deletePizzaToppingsByPizzaId(pizza.id)
+
+            //add toppings
+            for(const toppingId of pizza.toppingIds){
+                await fetch("/api/PizzaTopping", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json"},
+                    body: JSON.stringify({pizzaId: pizza.id, toppingId})
+                })
+            }
+
+            }
+        }
+
+
+
             alert(`Order ${id} updated`)
             navigate("/")
         } catch (error) {

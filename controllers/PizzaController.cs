@@ -59,7 +59,7 @@ public class PizzaController : ControllerBase
     {
         _dbContext.Pizzas.Add(pizza);
         _dbContext.SaveChanges();
-        return Created($"/api/pizza/{pizza.Id}", pizza);
+        return Created("", pizza);
     }
 
     [HttpPut("{id}")]
@@ -82,5 +82,26 @@ public class PizzaController : ControllerBase
 
         return NoContent();
     }
+
+    [HttpDelete("{id}")]
+    //[Authorize ]
+    public IActionResult DeletePizza(int id)
+    {
+        var pizza = _dbContext.Pizzas
+            .Include(p => p.PizzaToppings)
+            .FirstOrDefault(p => p.Id == id);
+
+        if (pizza == null)
+        {
+            return NotFound();
+        }
+
+        _dbContext.PizzaToppings.RemoveRange(pizza.PizzaToppings);
+        _dbContext.Pizzas.Remove(pizza);
+        _dbContext.SaveChanges();
+
+        return NoContent();
+    }
+
 
 }
